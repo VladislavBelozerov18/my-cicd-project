@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  # Веб-сервер Nginx
+  web:
+    image: nginx:alpine
+    ports:
+      - "8080:80"
+    depends_on:
+      - app
+    networks:
+      - app-network
+
+  # Python-приложение (пример)
+  app:
+    image: python:3.9-slim
+    command: sh -c "echo 'Hello from app' && sleep 3600"
+    depends_on:
+      - db
+    networks:
+      - app-network
+
+  # База данных PostgreSQL
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: secretpassword
+      POSTGRES_DB: myapp
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+# Создаём volume для сохранения данных БД
+volumes:
+  postgres_data:
+
+# Создаём сеть для общения контейнеров
+networks:
+  app-network:
+    driver: bridge
